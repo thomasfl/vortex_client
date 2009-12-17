@@ -1,7 +1,10 @@
 require 'helper'
 
 class TestVortexClient < Test::Unit::TestCase
-  should "probably rename this file and start testing for real" do
-    flunk "hey buddy, you should probably rename this file and start testing for real"
+
+  should "open connection " do
+    vortex = Vortex::Connection.new("https://vortex-dav.uio.no/")
+    assert vortex
   end
+
 end
