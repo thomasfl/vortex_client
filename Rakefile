@@ -5,11 +5,14 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "vortex_client"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Vortex CMS client}
+    gem.description = %Q{Utility for managing content on Vortex web content management system through webdav}
     gem.email = "thomas.flemming@usit.uio.no"
     gem.homepage = "http://github.com/thomasfl/vortex_client"
     gem.authors = ["Thomas Flemming"]
+    gem.executables = ["vrtx-sync"]
+    gem.add_dependency "net_dav", ">= 0.4.1"
+    gem.add_dependency "highline", ">= 1.5.1"
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
