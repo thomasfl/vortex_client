@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'uri'
+require 'vortex_client'
+
+# vrtx-sync
+# Author: Thomas Flemming, thomasfl(at)usit.uio.no
+# MIT License 2010
+
+def print_usage
+  puts "usage: #{$0} URI [URI2 URI3..]"
+  puts ""
+  puts "Downloads resource from webdav server. File is "
+  puts "uploaded back to webdav server when file us updated"
+  puts "on local disk. "
+  exit
+end
+
+def download(url, vortex)
+  filename = url[/[^\/]*$/,0]
+  file = File.new(filename, "w")
+  begin
+    file.puts vortex.get(url).to_s
+  rescue Net::HTTPServerException => e
+    puts "Server error: " + e.to_s + " " + url
+    exit
+  end
+  path = file.path
+  file.close
+  return path
+end
+
+
+# Monitor files
+class FileMon
+
+  def initialize(filenames)
+    @last_mtimes = { }
+    filenames.each do |filename|
+      raise "File does not exist: " + filename unless File.exist?(filename)
+      @last_mtimes[filename] = File.stat(filename).mtime
+    end
+    @filenames = filenames
+  end
+
+  def run(sleep=1, &on_update)
+    loop do
+      Kernel.sleep sleep until file_updated?
+      yield @updated_file
+    end
+  end
+
+  def file_updated?
+    @filenames.each do |filename|
+      mtime = File.stat(filename).mtime
+      updated = @last_mtimes[filename] < mtime
+      @last_mtimes[filename] = mtime
+      if(updated)
+        @updated_file = filename
+        return true
+      end
+    end
+    return false
+  end
+
+end
+
+
+if $*.size < 1
+  print_usage
+end
+
+url = $*[0]
+if(ENV['DAVUSER'] and ENV['DAVPASS'])
+  vortex = Vortex::Connection.new(url, ENV['DAVUSER'], ENV['DAVPASS'])
+else
+  vortex = Vortex::Connection.new(url)
+end
+
+downloaded_files = { }
+$*.each do |url|
+  puts "Downloading: " + url
+  filename = download(url, vortex)
+  downloaded_files[filename] = url
+end
+
+FileMon.new(downloaded_files.keys).run do |filename|
+  url = downloaded_files[filename]
+  file = File.open(filename, "rb")
+  contents = file.read
+  puts "Uploading " + filename + " => " + url
+  vortex.put_string(url, contents)
+end
