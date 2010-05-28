@@ -366,7 +366,7 @@ module Vortex
   # TODO: Fill out the stub.
   class StructuredArticle <  HtmlArticle
 
-    attr_accessor :title, :introduction, :content, :filename, :modifiedDate, :publishedDate, :owner, :url, :picture
+    attr_accessor :title, :introduction, :content, :filename, :modifiedDate, :publishedDate, :owner, :url, :picture, :hideAdditionalContent
 
     # Create an article
     # Options:
@@ -423,11 +423,13 @@ module Vortex
       if(picture)
         json += "           \"picture\": \"#{picture}\",\n"
       end
+      if(@hideAdditionalContent)then
       json += <<-EOF
-           "hideAdditionalContent": "false"
-         }
-      }
-      EOF
+             "hideAdditionalContent": "#{@hideAdditionalContent}"
+           }
+        }
+        EOF
+      end
       return json
     end
 
