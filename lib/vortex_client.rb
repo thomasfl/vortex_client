@@ -366,7 +366,7 @@ module Vortex
   # TODO: Fill out the stub.
   class StructuredArticle <  HtmlArticle
 
-    attr_accessor :title, :introduction, :content, :filename, :modifiedDate, :publishedDate, :owner, :url, :picture, :hideAdditionalContent
+    attr_accessor :title, :introduction, :content, :filename, :modifiedDate, :publishDate, :owner, :url, :picture, :hideAdditionalContent
 
     # Create an article
     # Options:
@@ -423,13 +423,23 @@ module Vortex
       if(picture)
         json += "           \"picture\": \"#{picture}\",\n"
       end
-      if(@hideAdditionalContent)then
-      json += <<-EOF
-             "hideAdditionalContent": "#{@hideAdditionalContent}"
+      if(@hideAdditionalContent != nil)then
+        if(@hideAdditionalContent.kind_of?(FalseClass))
+          value = "false"
+        elsif(@hideAdditionalContent.kind_of?(TrueClass))then
+          value = "true"
+        elsif(@hideAdditionalContent.kind_of?(String))
+          value = @hideAdditionalContent
+        end
+       json += <<-EOF
+             "hideAdditionalContent": "#{value}"
+       EOF
+       end
+       json += <<-EOF
            }
         }
         EOF
-      end
+
       return json
     end
 
@@ -439,19 +449,19 @@ module Vortex
         '<v:userSpecifiedCharacterEncoding xmlns:v="vrtx">utf-8</v:userSpecifiedCharacterEncoding>' +
         '<d:getcontenttype>application/json</d:getcontenttype>'
 
-      if(@publishedDate and @publishedDate != "")
-        if(@publishedDate.kind_of? Time)
-          @publishedDate = @publishedDate.httpdate.to_s
+      if(@publishDate and @publishDate != "")
+        if(@publishDate.kind_of? Time)
+          @publishDate = @publishDate.httpdate.to_s
         end
-        props += '<v:published-date xmlns:v="vrtx">' + @publishedDate + '</v:published-date>'
+        props += '<v:publish-date xmlns:v="vrtx">' + @publishDate + '</v:publish-date>'
       end
 
       if(date and date != "")
         if(date.kind_of? Time)
           date = @date.httpdate.to_s
         end
-        if(@publishedDate == nil or @publishedDate != "")
-          props += '<v:published-date xmlns:v="vrtx">' + date + '</v:published-date>'
+        if(@publishDate == nil or @publishDate != "")
+          props += '<v:publish-date xmlns:v="vrtx">' + date + '</v:publish-date>'
         end
         props += '<d:getlastmodified>' + date + '</d:getlastmodified>' +
         '<v:contentLastModified xmlns:v="vrtx">' + date + '</v:contentLastModified>' +
