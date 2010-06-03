@@ -1,8 +1,18 @@
 require 'rubygems'
 require 'ldap'
 
-# sudo gem install ruby-ldap
-# Returns realname from username
+# Simple utility to get real name from username by querying
+# ldap.uio.no
+#
+# Usage:
+#    realname = ldap_realname(username)
+#
+# Install:
+#    sudo gem install ruby-ldap
+#
+#
+# Author: Thomas.Flemming@usit.uio.no 2010
+
 def ldap_realname(username)
 
   begin
