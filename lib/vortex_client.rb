@@ -17,11 +17,31 @@ module Vortex
     #
     # Examples:
     #
-    #   vortex = Vortex::Connection.new("https://www-dav.server.com",user,pass)
+    # Prompt for username and password:
     #
     #   vortex = Vortex::Connection.new("https://www-dav.server.com") =>
-    #   Username: tiger
-    #   Password: *****
+    #     Username: tiger
+    #     Password: *****
+    #
+    # Retrieve password from KeyChain if running on OS X. Username must be the
+    # the same on server as user locally.
+    #
+    # Requires 'osx_keychain' and 'RubyInline' gem. To install
+    #  $ sudo gem install RubyInline
+    #  $ sudo gem instal osx_keychain
+    #
+    #
+    #   vortex = Vortex::Connection.new("https://www-dav.server.com", :use_osx_keychain => true)
+    #     Password not found in OS X KeyChain.
+    #     Enter password to store new password in OS X KeyChain.
+    #     Password: *****
+    #     Password for 'tiger' on 'www-dav.server.com' stored in OS X KeyChain.
+    #
+    # Supply username and password. Not recommended:
+    #
+    #   vortex = Vortex::Connection.new("https://www-dav.server.com",user,pass)
+    #
+    #
     def initialize(uri, *args)
       @uri = uri
       @uri = URI.parse(@uri) if @uri.is_a? String
@@ -29,6 +49,39 @@ module Vortex
       @handler = NetHttpHandler.new(@uri)
       @handler.verify_server = false # This defaults to true in Net::DAV
       if(args != [])
+        if(args[0][:use_osx_keychain])then
+
+          # Retrieve password from OS X KeyChain.
+          osx =  (RUBY_PLATFORM =~ /darwin/)
+          if(osx)then
+
+            require 'osx_keychain'
+            keychain = OSXKeychain.new
+            user = ENV['USER']
+            pass = keychain[@uri.host, user ]
+
+            if(pass == nil) then
+              puts "Password not found in OS X KeyChain. "
+              puts "Enter password to store new password in OS X KeyChain."
+              ## @handler.user = ask("Username: ") {|q| q.echo = true}
+              ## Todo: store username in a config file so we can have
+              ## different username locally and on server
+              pass = ask("Password: ") {|q| q.echo = "*"} # false => no echo
+              keychain[@uri.host, user] = pass
+              puts "Password for '#{user}' on '#{@uri.host}' stored in OS X KeyChain."
+              @handler.user = user
+              @handler.pass = pass
+            else
+              @handler.user = user
+              @handler.pass = pass
+            end
+            return @handler
+
+          else
+            puts "Warning: Not running on OS X."
+          end
+
+        end
         @handler.user = args[0]
         @handler.pass = args[1]
       else
@@ -53,7 +106,23 @@ module Vortex
       return true
     end
 
-    # Publish a document object to the web.
+    # Writes a document a document to the web. Same as publish, except
+    # that if document type is StructuredArticle publishDate
+    def write(object)
+      if(object.is_a? HtmlArticle or object.is_a? HtmlEvent or object.is_a? StructuredArticle)
+        uri = @uri.merge(object.url)
+        # puts "DEBUG: '" + object.class.to_s + "=" + object.properties
+        self.put_string(uri, object.content)
+        self.proppatch(uri, object.properties)
+        return uri.to_s
+      else
+        warn "Unknown vortex resource: " + object.class.to_s
+      end
+    end
+
+    # Publish a document object to the web. If content is a StructuredArticle
+    # stored as json, and publisDate is note set, then publishDate will be set
+    # to current time.
     #
     # Publishes a object by performing a PUT request to object.url with object.content
     # and then performing a PROPPATCH request to object.url with object.properties
@@ -64,15 +133,16 @@ module Vortex
     #   article = Vortex::StructuredArticle(:title=>"My title")
     #   vortex.publish(article)
     def publish(object)
-      if(object.is_a? HtmlArticle or object.is_a? HtmlEvent or object.is_a? StructuredArticle)
-        uri = @uri.merge(object.url)
-        # puts "DEBUG: '" + object.class.to_s + "=" + object.properties
-        self.put_string(uri, object.content)
-        self.proppatch(uri, object.properties)
-        return uri.to_s
-      else
-        warn "Unknown vortex resource: " + object.class.to_s
+      write(object)
+      uri = @uri.merge(object.url)
+      if(object.is_a? StructuredArticle) then
+        if(object.publishDate == nil)then
+          time = Time.now.httpdate.to_s
+          prop = '<v:publish-date xmlns:v="vrtx">' + time + '</v:publish-date>'
+          self.proppatch(uri, prop)
+        end
       end
+      return uri.to_s
     end
 
     # Creates collections
@@ -132,13 +202,13 @@ module Vortex
 
     def url
       if(@url)
-        @url
+        return @url
       else
         if(filename)
-          filename
+          return filename
         end
         if(title)
-          StringUtils.create_filename(title) + ".html"
+          return StringUtils.create_filename(title) + ".html"
         else
           warn "Article must have either a full url or title. "
         end
@@ -266,13 +336,13 @@ module Vortex
 
     def url
       if(@url)
-        @url
+        return @url
       else
         if(filename)
-          filename
+          return filename
         end
         if(title)
-          StringUtils.create_filename(title) + ".html"
+          return StringUtils.create_filename(title) + ".html"
         else
           warn "Article must have either a full url or title. "
         end
@@ -363,7 +433,6 @@ module Vortex
 
 
   # Vortex article stored as JSON data.
-  # TODO: Fill out the stub.
   class StructuredArticle <  HtmlArticle
 
     attr_accessor :title, :introduction, :content, :filename, :modifiedDate, :publishDate, :owner, :url, :picture, :hideAdditionalContent
@@ -379,13 +448,13 @@ module Vortex
 
     def url
       if(@url)
-        @url
+        return @url
       else
-        if(filename)
-          filename
+        if(filename != nil)
+          return filename
         end
         if(title)
-          StringUtils.create_filename(title) + ".html"
+          return StringUtils.create_filename(title) + ".html"
         else
           warn "Article must have either a full url or title. "
         end
