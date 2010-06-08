@@ -145,8 +145,8 @@ EOF
 
 end
 
-user = ENV['DAVUSER'] #  ask("Username : ") {|q| q.echo = true}
-pass  = ENV['DAVPASS'] #  ask("Password  : ") {|q| q.echo = false}
+user = ask("Username : ") {|q| q.echo = true}
+pass = ask("Password  : ") {|q| q.echo = false}
 if(!pass)then
   puts "Usage: export DAVPASS=pass "
   exit

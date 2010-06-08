@@ -2,7 +2,7 @@ require 'rubygems'
 require 'vortex_client'
 include Vortex
 
-vortex = Vortex::Connection.new("https://vortex-dav.uio.no/", ENV['DAVUSER'], ENV['DAVPASS'])
+vortex = Vortex::Connection.new("https://vortex-dav.uio.no/")
 vortex.cd('/brukere/thomasfl/events/')
 
 collection = ArticleListingCollection.new(:url => 'my-collection', :title => 'My articles')
