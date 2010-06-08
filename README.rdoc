@@ -59,10 +59,10 @@ To retrieve password from KeyChain on OS X, use the option :use_osx_keychain => 
 When running for the first time, ruby prompts for the password. Username must be
 the same both locally and on the server.
 
-   Password not found in OS X KeyChain.
-   Enter password to store new password in OS X KeyChain.
+   Password not found on OS X KeyChain.
+   Enter password to store new password on OS X KeyChain.
    Password: *****
-   Password for 'tiger' on 'www-dav.server.com' stored in OS X KeyChain.
+   Password for 'tiger' on 'www-dav.server.com' stored on OS X KeyChain.
 
 The next time the script is executed, ruby won't prompt for username or password.
 
@@ -71,7 +71,7 @@ KeyChain authentication requires 'osx_keychain' and 'RubyInline' gem.
 To install:
 
    $ sudo gem install RubyInline
-   $ sudo gem instal osx_keychain
+   $ sudo gem install osx_keychain
 
 
 == Note on Patches/Pull Requests

@@ -26,14 +26,15 @@ module Vortex
     # Retrieve password from KeyChain if running on OS X. Username must be the
     # the same on server as user locally.
     #
-    # Requires 'osx_keychain' and 'RubyInline' gem. To install
-    #  $ sudo gem install RubyInline
-    #  $ sudo gem instal osx_keychain
+    # Requires 'osx_keychain' and 'RubyInline' gem. To install:
+
+    #   $ sudo gem install RubyInline
+    #   $ sudo gem install osx_keychain
     #
     #
     #   vortex = Vortex::Connection.new("https://www-dav.server.com", :use_osx_keychain => true)
-    #     Password not found in OS X KeyChain.
-    #     Enter password to store new password in OS X KeyChain.
+    #     Password not found on OS X KeyChain.
+    #     Enter password to store new password on OS X KeyChain.
     #     Password: *****
     #     Password for 'tiger' on 'www-dav.server.com' stored in OS X KeyChain.
     #
@@ -61,14 +62,14 @@ module Vortex
             pass = keychain[@uri.host, user ]
 
             if(pass == nil) then
-              puts "Password not found in OS X KeyChain. "
-              puts "Enter password to store new password in OS X KeyChain."
+              puts "Password not found on OS X KeyChain. "
+              puts "Enter password to store new password on OS X KeyChain."
               ## @handler.user = ask("Username: ") {|q| q.echo = true}
               ## Todo: store username in a config file so we can have
               ## different username locally and on server
               pass = ask("Password: ") {|q| q.echo = "*"} # false => no echo
               keychain[@uri.host, user] = pass
-              puts "Password for '#{user}' on '#{@uri.host}' stored in OS X KeyChain."
+              puts "Password for '#{user}' on '#{@uri.host}' stored on OS X KeyChain."
               @handler.user = user
               @handler.pass = pass
             else
