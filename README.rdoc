@@ -22,7 +22,7 @@ Running the script.
    Username: thomasfl
    Password: *****
 
-The article should be published to "https://www-dav.server.com/news/my-title.html".
+An article should now be published to "https://www-dav.server.com/news/my-title.html".
 
 = Creating folders (collections)
 
@@ -31,7 +31,7 @@ To create a folder named "2010" in the "/news/" folder.
    require 'rubygems'
    require 'vortex_client'
 
-   vortex = Vortex::Connection.new("https://www-dav.server.com", ENV['DAVUSER'], ENV['DAVPASS'])
+   vortex = Vortex::Connection.new("https://www-dav.server.com")
    vortex.cd("/news/")
    collection = Vortex::ArticleListingCollection.new(:title => "News for 2009", :foldername => "2009")
    vortex.create(collection)
@@ -49,6 +49,30 @@ On most setups you simply do:
 If your'e having problems installing the xml parser nokogiri on is x:  http://wiki.github.com/tenderlove/nokogiri/what-to-do-if-libxml2-is-being-a-jerk
 Also how to compile ruby 1.9.1 on os x http://wonko.com/post/how-to-compile-ruby-191
 On ubuntu openssl can be an issue http://blog.maxaller.name/2009/02/ruby-19-and-openssl-on-ubuntu/
+
+= Using KeyChain authentication on OS X
+
+To retrieve password from KeyChain on OS X, use the option :use_osx_keychain => true.
+
+   vortex = Vortex::Connection.new("https://www-dav.server.com", :use_osx_keychain => true)
+
+When running for the first time, ruby prompts for the password. Username must be
+the same both locally and on the server.
+
+   Password not found in OS X KeyChain.
+   Enter password to store new password in OS X KeyChain.
+   Password: *****
+   Password for 'tiger' on 'www-dav.server.com' stored in OS X KeyChain.
+
+The next time the script is executed, ruby won't prompt for username or password.
+
+KeyChain authentication requires 'osx_keychain' and 'RubyInline' gem.
+
+To install:
+
+   $ sudo gem install RubyInline
+   $ sudo gem instal osx_keychain
+
 
 == Note on Patches/Pull Requests
 
