@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 require 'net/dav'
 require 'vortex_client/string_utils'
+require 'vortex_client/person'
 require 'highline/import'
 require 'time'
 
+require 'json'
 
 
 # Utilities for managing content in the web content management system Vortex.
@@ -110,9 +112,9 @@ module Vortex
     # Writes a document a document to the web. Same as publish, except
     # that if document type is StructuredArticle publishDate
     def write(object)
-      if(object.is_a? HtmlArticle or object.is_a? HtmlEvent or object.is_a? StructuredArticle)
+      if(object.is_a? HtmlArticle or object.is_a? HtmlEvent or object.is_a? StructuredArticle or object.is_a? Vortex::Person)
         uri = @uri.merge(object.url)
-        # puts "DEBUG: '" + object.class.to_s + "=" + object.properties
+        # puts "DEBUG: uri = " + uri.to_s
         self.put_string(uri, object.content)
         self.proppatch(uri, object.properties)
         return uri.to_s
@@ -436,7 +438,7 @@ module Vortex
   # Vortex article stored as JSON data.
   class StructuredArticle <  HtmlArticle
 
-    attr_accessor :title, :introduction, :content, :filename, :modifiedDate, :publishDate, :owner, :url, :picture, :hideAdditionalContent
+    attr_accessor :title, :introduction, :body, :filename, :modifiedDate, :publishDate, :owner, :url, :picture, :hideAdditionalContent
 
     # Create an article
     # Options:
@@ -473,10 +475,11 @@ module Vortex
          "resourcetype": "structured-article",
          "properties": {
       EOF
+
       if(body and body.size > 0)
         tmp_body = body
         # Escape '"' and line shifts so html will be valid json data.
-        tmp_body = body.gsub(/\r/,"\\\r").gsub(/\n/,"\\\n").gsub(/\"/,"\\\"")
+        tmp_body = tmp_body.gsub(/\r/,"\\\r").gsub(/\n/,"\\\n").gsub(/\"/,"\\\"") ## .to_json
         json += "           \"content\": \"#{tmp_body}\",\n"
       end
       if(author and author.size > 0)
@@ -642,6 +645,19 @@ module Vortex
     end
 
   end
+
+
+  class PersonListingCollection < Collection
+
+    def properties()
+      props = super
+      props += '<v:resourceType xmlns:v="vrtx">person-listing</v:resourceType>' +
+        '<v:collection-type xmlns:v="vrtx">person-listing</v:collection-type>'
+      return props
+    end
+
+  end
+
 
 
   class EventListingCollection < Collection
