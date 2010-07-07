@@ -6,7 +6,7 @@ Creates a standard article. Stores file as JSON on server, which is the
 
 = upload_file.rb
 
-Upload local til to server.
+Upload local (binary) file to server.
 
 = personer_presentation.rb
 
