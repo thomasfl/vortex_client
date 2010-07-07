@@ -17,11 +17,9 @@ class TestVortexPerson < Test::Unit::TestCase
     end
   end
 
-  def self.zshould(*args)
-  end
-
-  zshould "publish person presentation" do
+  should "publish person presentation" do
     @vortex.cd('/konv/personer_test/')
+
     person = Vortex::Person.new(:user => 'thomasfl',
                                 :image => '/brukere/thomasfl/thomasfl.jpg',
                                 :language => :english,
@@ -37,9 +35,14 @@ class TestVortexPerson < Test::Unit::TestCase
   should "publish default person presentation for scientists" do
     @vortex.cd('/konv/personer_test/')
 
+    collection = Vortex::PersonListingCollection.new(:foldername => '/konv/personer_test/scientific')
+
+    created_path = @vortex.create(collection)
+    @vortex.cd(created_path)
     person = Vortex::Person.new(:user => 'herman',
                                 :image => '/konv/personer_test/placeholder.jpg',
                                 :language => :english,
+                                :url =>  '/konv/personer_test/scientific/index.html',
                                 :scientific => true)
 
     # puts person.content

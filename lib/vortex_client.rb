@@ -629,18 +629,18 @@ module Vortex
   #
   # Examaple:
   #
-  #   collection = ArticleListingCollection(:url => 'news')
-  #   collection = ArticleListingCollection(:foldername => 'news')
-  #   collection = ArticleListingCollection(:title => 'My articles')
-  #   collection = ArticleListingCollection(:title => 'My articles',
-  #                                         :foldername => 'articles',
-  #                                         :navigationTitle => 'Read articles')
+  #   collection = ArticleListingCollection.new(:url => 'news')
+  #   collection = ArticleListingCollection.new(:foldername => 'news')
+  #   collection = ArticleListingCollection.new(:title => 'My articles')
+  #   collection = ArticleListingCollection.new(:title => 'My articles',
+  #                                             :foldername => 'articles',
+  #                                             :navigationTitle => 'Read articles')
   class ArticleListingCollection < Collection
 
     def properties()
       props = super
-      props += "<v:resourceType xmlns:v=\"vrtx\">article-listing</v:resourceType>" +
-        "<v:collection-type xmlns:v=\"vrtx\">article-listing</v:collection-type>"
+      props += '<v:resourceType xmlns:v=\"vrtx\">article-listing</v:resourceType>' +
+               '<v:collection-type xmlns:v=\"vrtx\">article-listing</v:collection-type>'
       return props
     end
 
