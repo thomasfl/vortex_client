@@ -1,11 +1,10 @@
 require 'rubygems'
 require 'vortex_client'
-include Vortex
 
 vortex = Vortex::Connection.new("https://vortex-dav.uio.no/")
 
 vortex.cd('/brukere/thomasfl/nyheter/')
-article  = HtmlArticle.new(:title => "My new title",
+article  = Vortex::StructuredArticle.new(:title => "Hello world",
                            :introduction => "Short introduction",
                            :body => "<p>Longer body</p>",
                            :publishedDate => Time.now,
