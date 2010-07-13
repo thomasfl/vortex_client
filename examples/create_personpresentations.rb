@@ -91,7 +91,13 @@ def create_person_presentation(url, dest_folder, language)
 
   copy(url,dest_image_url)
 
-  scientific = true
+  if(url.to_s.match(/\/vit\//))then
+    scientific = true
+  else
+    scientific = false
+  end
+  # scientific = true
+
   person = Vortex::Person.new(:user => username,
                             :image => dest_image_url,
                             :language => language,
@@ -100,7 +106,8 @@ def create_person_presentation(url, dest_folder, language)
 
   # Use the 'administrative' html template.
   # Override default html template used for scientific presentations.
-  person.html = person.create_html(:language => language, :html_template => :administrative)
+  #    person.html = person.create_html(:language => language, :html_template => :administrative)
+
   @vortex.publish(person)
 end
 
@@ -122,19 +129,19 @@ def create_presentations_from_images(src_url, dest_url, language)
   return count
 end
 
-src_url = 'https://nyweb3-dav.uio.no/konv/ubo/'
-
+# src_url = 'https://nyweb3-dav.uio.no/konv/ubo/'
+src_url = 'https://nyweb1-dav.uio.no/personer/genererte-presentasjoner/econ/'
 @vortex = Vortex::Connection.new(src_url, :use_osx_keychain => true)
 
 # puts "Restore from backup..."
 # delete(src_url)
 # copy('https://nyweb3-dav.uio.no/konv/ubo_backup/', src_url)
 
-dest_url = 'https://nyweb3-dav.uio.no/konv/ubo_no/'
+dest_url = 'https://nyweb1-dav.uio.no/personer/genererte-presentasjoner/econ_generert/' ## https://nyweb3-dav.uio.no/konv/ubo_no/'
 count = create_presentations_from_images(src_url, dest_url, :norwegian)
 puts "\n\nDone. Created " + count.to_s + " presentations."
 
-dest_url = 'https://nyweb3-dav.uio.no/konv/ubo_en/'
-count = create_presentations_from_images(src_url, dest_url, :english)
-puts "\n\nDone. Created " + count.to_s + " presentations."
+# dest_url = 'https://nyweb3-dav.uio.no/konv/ubo_en/'
+# count = create_presentations_from_images(src_url, dest_url, :english)
+# puts "\n\nDone. Created " + count.to_s + " presentations."
 
