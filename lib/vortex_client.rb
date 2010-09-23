@@ -438,7 +438,7 @@ module Vortex
   # Vortex article stored as JSON data.
   class StructuredArticle <  HtmlArticle
 
-    attr_accessor :title, :introduction, :body, :filename, :modifiedDate, :publishDate, :owner, :url, :picture, :hideAdditionalContent
+    attr_accessor :title, :introduction, :body, :filename, :modifiedDate, :publishDate, :owner, :url, :picture, :hideAdditionalContent, :tags
 
     # Create an article
     # Options:
@@ -470,6 +470,47 @@ module Vortex
 
 
     def content
+      properties = { }
+      if(body and body.size > 0)
+        properties = properties.merge(:content => body)
+      end
+
+      if(tags and tags.kind_of?(Array) and tags.size > 0)then
+        properties = properties.merge(:tags => tags)
+      end
+
+      if(author and author.size > 0)
+        properties =  properties.merge(:author => author)
+      end
+      if(introduction and introduction.size > 0)
+        properties = properties.merge(:introduction => introduction)
+      end
+
+      if(picture)
+        properties = properties.merge(:picture => picture)
+      end
+
+      if(title)
+        properties = properties.merge(:title => title)
+      end
+
+      if(@hideAdditionalContent != nil)then
+        if(@hideAdditionalContent.kind_of?(FalseClass))
+          value = "false"
+        elsif(@hideAdditionalContent.kind_of?(TrueClass))then
+          value = "true"
+        elsif(@hideAdditionalContent.kind_of?(String))
+          value = @hideAdditionalContent
+        end
+        properties = properties.merge(:hideAdditionalContent => value)
+      end
+
+      json = { :resourcetype => "structured-article"}.merge(:properties => properties).to_json
+
+      return json
+    end
+
+    def zzzzz_content_old
       json = <<-EOF
       {
          "resourcetype": "structured-article",
@@ -482,6 +523,12 @@ module Vortex
         tmp_body = tmp_body.gsub(/\r/,"\\\r").gsub(/\n/,"\\\n").gsub(/\"/,"\\\"") ## .to_json
         json += "           \"content\": \"#{tmp_body}\",\n"
       end
+
+      if(tags and tags.kind_of?(Array) and tags.size > 0)
+        json += "           \"tags\": ,\n"
+        json += "             \"" + tags.join("\"\n, \"") + "\"\n"
+      end
+
       if(author and author.size > 0)
         json += "           \"author\": [\"#{author}\"],\n"
       end
@@ -513,12 +560,14 @@ module Vortex
         }
         EOF
 
+      # puts "DEBUG: json:" + json
+      # puts
+
       return json
     end
 
     def properties
       props = '<v:resourceType xmlns:v="vrtx">structured-article</v:resourceType>' +
-    #     '<v:xhtml10-type xmlns:v="vrtx">structured-article</v:xhtml10-type>' +
         '<v:userSpecifiedCharacterEncoding xmlns:v="vrtx">utf-8</v:userSpecifiedCharacterEncoding>' +
         '<d:getcontenttype>application/json</d:getcontenttype>'
 
@@ -542,19 +591,10 @@ module Vortex
         '<v:creationTime xmlns:v="vrtx">' + date + '</v:creationTime>'
       end
 
-      if(picture)
-#        props += '<v:picture xmlns:v="vrtx">' + picture + '</v:picture>'
-      end
-
-      if(title)
-#        props += '<v:userTitle xmlns:v="vrtx">' + title + '</v:userTitle>'
-      end
       if(owner)
         props += '<owner xmlns="vrtx">' + owner + '</owner>'
       end
-      if(introduction and introduction != "")
-#        props += '<introduction xmlns="vrtx">' + escape_html(introduction) + '</introduction>'
-      end
+
       if(author and author != "")
 #        props += '<v:authors xmlns:v="vrtx">' +
 #          '<vrtx:values xmlns:vrtx="http://vortikal.org/xml-value-list">' +
@@ -563,14 +603,6 @@ module Vortex
 #        '</v:authors>'
       end
 
-      if(tags and tags.kind_of?(Array) and tags.size > 0)
- #       props += '<v:tags xmlns:v="vrtx">' +
- #         '<vrtx:values xmlns:vrtx="http://vortikal.org/xml-value-list">'
- #       tags.each do |tag|
- #           props += "<vrtx:value>#{tag}</vrtx:value>"
- #       end
- #       props += '</vrtx:values></v:tags>'
-      end
       return props
     end
 
@@ -608,9 +640,7 @@ module Vortex
     end
 
     def properties()
-      # props = "<v:resourceType xmlns:v=\"vrtx\">collection</v:resourceType>" +
-      #  "<v:collection-type xmlns:v=\"vrtx\">article-listing</v:collection-type>"
-      props = ""
+      props = "<v:resourceType xmlns:v=\"vrtx\">collection</v:resourceType>"
       if(title and title != "")
         props += "<v:userTitle xmlns:v=\"vrtx\">#{title}</v:userTitle>"
       end
@@ -639,8 +669,8 @@ module Vortex
 
     def properties()
       props = super
-      props += '<v:resourceType xmlns:v=\"vrtx\">article-listing</v:resourceType>' +
-               '<v:collection-type xmlns:v=\"vrtx\">article-listing</v:collection-type>'
+      props += '<v:resourceType xmlns:v="vrtx">article-listing</v:resourceType>'  +
+               '<v:collection-type xmlns:v="vrtx">article-listing</v:collection-type>'
       return props
     end
 
@@ -652,7 +682,7 @@ module Vortex
     def properties()
       props = super
       props += '<v:resourceType xmlns:v="vrtx">person-listing</v:resourceType>' +
-        '<v:collection-type xmlns:v="vrtx">person-listing</v:collection-type>'
+               '<v:collection-type xmlns:v="vrtx">person-listing</v:collection-type>'
       return props
     end
 
@@ -664,8 +694,8 @@ module Vortex
 
     def properties()
       props = super
-      props += "<v:resourceType xmlns:v=\"vrtx\">event-listing</v:resourceType>" +
-        "<v:collection-type xmlns:v=\"vrtx\">event-listing</v:collection-type>"
+      props += '<v:resourceType xmlns:v="vrtx">event-listing</v:resourceType>' +
+               '<v:collection-type xmlns:v="vrtx">event-listing</v:collection-type>'
       return props
     end
 
