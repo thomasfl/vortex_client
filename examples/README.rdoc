@@ -23,3 +23,8 @@ Creates a file with that can be used as a basis for a sitemap.
 = create_collection.rb
 
 Creates various types of directories, called collections in webdav, on server.
+
+= unpublish.rb
+
+Hides documents for visitors by setting the documents unpublish-date to current time and date.
+
