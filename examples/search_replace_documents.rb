@@ -30,11 +30,10 @@ folders.each do |folder|
 
   vortex.find(folder,:recursive => true,:filename=>/\.html$/) do |item|
     puts item.uri.to_s
-    data = JSON.parse(item.content)
 
     data = nil
     begin
-      data = JSON.parse("<html>Test</html>")
+      data = JSON.parse(item.content)
     rescue
       puts "Warning. Bad document. Not json:" + item.uri.to_s
     end
