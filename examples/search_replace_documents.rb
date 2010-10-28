@@ -31,12 +31,25 @@ folders.each do |folder|
   vortex.find(folder,:recursive => true,:filename=>/\.html$/) do |item|
     puts item.uri.to_s
     data = JSON.parse(item.content)
-    content = data["properties"]["content"]
-    replacements.each do |key,val|
-      content = content.gsub(key,val)
+
+    data = nil
+    begin
+      data = JSON.parse("<html>Test</html>")
+    rescue
+      puts "Warning. Bad document. Not json:" + item.uri.to_s
     end
-    data["properties"]["content"] = content
-    item.content = data.to_json
+
+    if(data)then
+      content = data["properties"]["content"]
+      if(content)then
+        replacements.each do |key,val|
+          content = content.gsub(key,val)
+        end
+        data["properties"]["content"] = content
+        item.content = data.to_json
+      end
+    end
+
   end
 
 end
