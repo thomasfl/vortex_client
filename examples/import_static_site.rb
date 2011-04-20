@@ -19,6 +19,8 @@ class MigrateSuicidologi
   # Common regexp for title and introduction
   def clean_string(string)
     string = string.gsub(/\r|\n/,'').sub(/^ */,'').sub(/\s*$/,'').gsub(/ +/,' ')
+    coder = HTMLEntities.new()
+    string = coder.decode(string) # Remove html entities
     return string
   end
 
@@ -46,14 +48,26 @@ class MigrateSuicidologi
   # Scrape an issue
   def scrape_periodical(url)
     html = open(url).read
-    # c = Iconv.new('UTF-8', 'ISO-8859-1')
-    # html = c.iconv(html)
-
-    # Remove html entities
-    coder = HTMLEntities.new()
-    html = coder.decode(html)
 
     doc = Nokogiri::HTML.parse(html)
+
+    # Detect encoding
+    doc.encoding = 'iso-8859-1'
+
+    if(doc.to_s =~ /æ|ø|å/)then
+      puts "Encoding detected: iso-8859-1"
+    else
+      doc2 = Nokogiri::HTML.parse(html)
+      doc2.encoding = 'utf-8'
+      if(doc2.to_s =~ /æ|ø|å/)then  # This method only works for norwegian
+        puts "Encoding detected: utf-8"
+        doc = Nokogiri::HTML.parse(html)
+        doc.encoding = 'utf-8'
+      else
+        puts "Encoding detected: unknown"
+      end
+    end
+
     issue = { }
     issue[:title] = clean_string( doc.css('.MenuHeading1').inner_text )
     issue[:title] =~ /,(.*)/
@@ -74,7 +88,6 @@ class MigrateSuicidologi
 
   # Remove unwanted tags from body
   def clean_html(doc)
-    # doc = Nokogiri::HTML.parse(html)
 
     # Remove font tags
     doc.xpath('//font').each do |node|
@@ -158,12 +171,14 @@ class MigrateSuicidologi
 
   def migrate_issue(url)
     issue = scrape_periodical(url)
-
-    puts "Year  : '#{issue[:year]}'"
-    puts "folder: '#{issue[:folder_name]}' / '#{issue[:folder_title]}'"
-    puts "Tittel: '#{issue[:title]}'"
-    puts "Intro : '#{issue[:introduction]}'"
-    puts "Body  : '#{issue[:body][0..110]}.."
+    debug = false
+    if(debug)then
+      puts "Year  : '#{issue[:year]}'"
+      puts "folder: '#{issue[:folder_name]}' / '#{issue[:folder_title]}'"
+      puts "Tittel: '#{issue[:title]}'"
+      puts "Intro : '#{issue[:introduction]}'"
+      puts "Body  : '#{issue[:body][0..110]}.."
+    end
     # require 'pp'
     # pp issue[:files]
     # puts

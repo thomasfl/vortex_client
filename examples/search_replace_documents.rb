@@ -1,6 +1,8 @@
 # Search and replace a set of sentences in a set of folders on vortex webdav server.
 #
-# Author: Thomas Flemming thomasfl@usit.uio.no
+# TODO: Make the script keep the lastUpdatedDate and publishedDate unchanged.
+#
+# Author: Thomas Flemming 2010 thomasfl@usit.uio.no
 
 require 'rubygems'
 require 'vortex_client'
@@ -23,6 +25,7 @@ folders = [
   "/arena/english/people/aca/",
   "/tik/english/people/aca/"
 ]
+
 
 vortex = Vortex::Connection.new("https://nyweb1-dav.uio.no/",:use_osx_keychain => true)
 
