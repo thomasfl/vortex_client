@@ -18,11 +18,20 @@ require 'json'
 #  ok - Hente ut content/type på bilder
 #  ok - Kopiere over ingress bilde
 #  ok - Luke ut rare tegn i overskriftene
-# - Kjøre alle dokumenter uten kræsj
+#  ok - Kjøre alle dokumenter uten kræsj
 #  - Kopiere over flere bilder
-#  - Få logging til fil til å fungere
+#  ok - Få logging til fil til å fungere
+# - Hvorfor konverteres og publiseres /konv/kunnskapsbasen/-a-hrefhttp-.html
+# - Håndtere /konv/kunnskapsbasen/hl-senterets-kunnskapsbase.html spesielt?
 
 @vortex = Vortex::Connection.new("https://nyweb4-dav.uio.no", :use_osx_keychain => true)
+
+# Log to file
+def log(str)
+  puts str
+  log_str = Time.now.iso8601 + ";" + str + "\n"
+  File.open("scrape_holocaust.log", 'a') {|f| f.write(log_str) }
+end
 
 def http_content_type(url)
   uri = URI.parse(url)
@@ -40,8 +49,11 @@ def create_path(dest_path)
   destination_path = "/"
   dest_path.split("/").each do |folder|
     if(folder != "")then
+      folder = folder.downcase
       destination_path = destination_path + folder + "/"
+
       if( not(@vortex.exists?(destination_path)) )then
+
         puts "Creating folder " + destination_path
 
         uri = URI.parse(@url)
@@ -117,7 +129,7 @@ def publish_article(path, title, introduction, body, doc)
     :body => body,
     :publishedDate => Time.now}
 
-  if(article_image_url)then
+  if(new_image_url)then
     attributes[:picture] = new_image_url
   end
 
@@ -191,6 +203,11 @@ def scrape_article_listing(url)
     return
   end
 
+  if(url =~ /\/kunnskapsbasen\/Presse/)then
+    puts "Advarsel: Ignorerer pressesidene har for store bilder for vortex: url"
+    return
+  end
+
   doc = Nokogiri::HTML.parse(open(url))
 
   doc.encoding = 'utf-8'
@@ -215,13 +232,19 @@ if @vortex.exists?('/konv/kunnskapsbasen/aktor/diktatorer/') then
 end
 @url = "http://www.hlsenteret.no/kunnskapsbasen/"
 
+scrape_article("http://www.hlsenteret.no/kunnskapsbasen/folkemord/armenerne/1334")
+exit
+
+
 # Denne har ingen tittel og skal ignoreres
 # scrape_article('http://www.hlsenteret.no/kunnskapsbasen/tradisjoner/86')
 # exit
 
 # Denne returnerer 404
 # scrape_article_listing("http://www.hlsenteret.no/kunnskapsbasen/tema/kunst")
-# scrape_article_listing("http://www.hlsenteret.no/kunnskapsbasen/tradisjoner/")
+
+# Denne har bilder som er for store vortex
+# scrape_article_listing("http://www.hlsenteret.no/kunnskapsbasen/Presse/")
 # exit
 
 
