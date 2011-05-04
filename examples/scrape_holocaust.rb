@@ -149,8 +149,7 @@ def publish_article(path, title, introduction, body, doc)
   create_path(dest_path)
   @vortex.cd(dest_path)
 
-#   images = scrape_images(doc)
-  images = []
+  images = scrape_images(doc)
 
   images.each do |image|
     filenames = download_image(image[:url], dest_path)
@@ -297,8 +296,8 @@ if @vortex.exists?('/konv/kunnskapsbasen/aktor') then
 end
 @url = "http://www.hlsenteret.no/kunnskapsbasen/"
 
-scrape_article_listing(@url + "aktor/")
-exit
+# scrape_article_listing(@url + "aktor/")
+# exit
 
 # Denne har 4 bilder
 # scrape_article("http://www.hlsenteret.no/kunnskapsbasen/folkemord/armenerne/1334")
