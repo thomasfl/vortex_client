@@ -143,12 +143,18 @@ end
 
 
 def publish_article(path, title, introduction, body, doc)
-  # puts "Publishing..."
   dest_path = "/konv" + path.gsub(/\d*$/,'')
-  puts dest_path
+
+  if(not(dest_path =~ /\/$/))then
+    dest_path = dest_path + "/"
+  end
+
+  puts "Publishing to: '#{dest_path}'"
+
   create_path(dest_path)
   @vortex.cd(dest_path)
 
+  images = nil
   images = scrape_images(doc)
 
   images.each do |image|
@@ -157,21 +163,33 @@ def publish_article(path, title, introduction, body, doc)
     image[:vortex_url_org] = filenames[:vortex_url]
   end
 
+  url = dest_path + Vortex::StringUtils.create_filename(title).gsub(/-$/,'') + '.html'
+  url = url.downcase
+
   attributes = {:title => title,
     :introduction => introduction,
     :body => body,
-    :publishedDate => Time.now}
+    :publishedDate => Time.now,
+    :url => url}
 
-  if(images.first)then
+  if(images and images.first)then
     attributes[:picture] = images.first[:vortex_url]
   end
 
   article  = Vortex::StructuredArticle.new(attributes )
-  url = @vortex.publish(article)
+  begin
+    url = @vortex.publish(article)
+  rescue Exception => e
+    puts e.message
+    require 'pp'
+    pp e.backtrace.inspect
+    pp attributes
+    puts "Path: " + dest_path
+  end
 
   # Add additional images to bottom of page
   images_html = ""
-  if(images.size > 1)then
+  if(images and images.size > 1)then
     images[1..images.size].each do |image|
       image_html = <<EOF
         <p>
@@ -192,7 +210,7 @@ EOF
   end
 
   # Reopen document and set caption on article image
-  if(images.first)then
+  if(images and images.first)then
     @vortex.find(url) do |item|
       data = JSON.parse(item.content)
 
@@ -214,7 +232,7 @@ EOF
 end
 
 def scrape_article(url)
-  puts "Scraping article: " + url
+  # puts "Scraping article: " + url
   doc = Nokogiri::HTML.parse(open(url))
   doc.encoding = 'utf-8'
   if(doc.css(".article .title").size() == 0)then
@@ -235,19 +253,15 @@ def scrape_article(url)
 
   title = title.gsub('','–') # Fjern bindestrek
 
-  # puts title
-  # puts
-  # puts url
+
   uri = URI.parse(url)
   path = uri.path
-  # puts path
+
   published_path = publish_article(path, title, introduction, body, doc)
   log = path + ";" + URI.parse(published_path).path
-  # puts
+
   File.open("scrape_holocaust.log", 'w') {|f| f.write(log) }
   puts title + " => " + published_path
-
-  # binding.pry
 end
 
 def http_status_code(url)
@@ -296,8 +310,8 @@ if @vortex.exists?('/konv/kunnskapsbasen/aktor') then
 end
 @url = "http://www.hlsenteret.no/kunnskapsbasen/"
 
-# scrape_article_listing(@url + "aktor/")
-# exit
+scrape_article_listing(@url)
+
 
 # Denne har 4 bilder
 # scrape_article("http://www.hlsenteret.no/kunnskapsbasen/folkemord/armenerne/1334")
@@ -311,12 +325,4 @@ end
 # Denne har bilder som er for store vortex
 # scrape_article_listing("http://www.hlsenteret.no/kunnskapsbasen/Presse/")
 
-
 # scrape_article('http://www.hlsenteret.no/kunnskapsbasen/tema/relpol/10129')
-
-scrape_article_listing(@url)
-
-# url = "http://www.hlsenteret.no/kunnskapsbasen/ideologi/nazisme/1143"
-# url = "http://www.hlsenteret.no/kunnskapsbasen/aktor/diktatorer/1595"
-# scrape_article(url)
-
