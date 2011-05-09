@@ -8,6 +8,7 @@ require 'pry'
 require "net/http"
 require 'pathname'
 require 'json'
+require 'pp'
 
 # Scrape content from the Norwegian Center for Studies of Holocaust and Religious Minorities'
 # website http://www.hlsenteret.no/ and re-publish content to University of Oslo's CMS
@@ -131,13 +132,31 @@ def download_image(src_url,dest_path)
   content = open(src_url).read
   basename = Pathname.new(src_url).basename.to_s.gsub(/\..*/,'')
   vortex_url = dest_path + basename + "." + content_type
-  @vortex.put_string(vortex_url, content)
+  vortex_url = vortex_url.downcase
+  begin
+    @vortex.put_string(vortex_url, content)
+  rescue Exception => e
+    puts e.message
+    pp e.backtrace.inspect
+    puts "vortex_url: " + vortex_url
+    exit
+  end
 
   # Store a resized image to vortex
   puts "Nedskalerer bilde: " + src_url
   content_resized = resize_image(content, content_type,300)
   vortex_url_resized = dest_path + basename + "_width_300." + content_type
-  @vortex.put_string(vortex_url_resized, content_resized)
+
+  vortex_url_resized = vortex_url_resized.downcase
+  begin
+    @vortex.put_string(vortex_url_resized, content_resized)
+  rescue Exception => e
+    puts e.message
+    pp e.backtrace.inspect
+    puts "vortex_url_resized: " + vortex_url_resized
+    exit
+  end
+
   return { :vortex_url_resized => vortex_url_resized, :vortex_url => vortex_url}
 end
 
@@ -185,6 +204,7 @@ def publish_article(path, title, introduction, body, doc)
     pp e.backtrace.inspect
     pp attributes
     puts "Path: " + dest_path
+    exit
   end
 
   # Add additional images to bottom of page
@@ -305,9 +325,9 @@ def scrape_article_listing(url)
 
 end
 
-if @vortex.exists?('/konv/kunnskapsbasen/aktor') then
-  @vortex.delete('/konv/kunnskapsbasen/aktor')
-end
+# if @vortex.exists?('/konv/kunnskapsbasen/aktor') then
+#  @vortex.delete('/konv/kunnskapsbasen/aktor')
+# end
 @url = "http://www.hlsenteret.no/kunnskapsbasen/"
 
 scrape_article_listing(@url)
