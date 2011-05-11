@@ -173,8 +173,9 @@ def publish_article(path, title, introduction, body, doc)
   create_path(dest_path)
   @vortex.cd(dest_path)
 
-  images = nil
-  images = scrape_images(doc)
+  images = []
+  # Comment out this line to prevent scraper from downloading images
+  # images = scrape_images(doc)
 
   images.each do |image|
     filenames = download_image(image[:url], dest_path)
@@ -182,7 +183,7 @@ def publish_article(path, title, introduction, body, doc)
     image[:vortex_url_org] = filenames[:vortex_url]
   end
 
-  url = dest_path + Vortex::StringUtils.create_filename(title).gsub(/-$/,'') + '.html'
+  url = dest_path + Vortex::StringUtils.create_filename(title.gsub(":","_")).gsub(/-$/,'') + '.html'
   url = url.downcase
 
   attributes = {:title => title,
@@ -248,7 +249,6 @@ EOF
   end
 
   return url
-
 end
 
 def scrape_article(url)
@@ -273,14 +273,17 @@ def scrape_article(url)
 
   title = title.gsub('','–') # Fjern bindestrek
 
-
   uri = URI.parse(url)
   path = uri.path
 
-  published_path = publish_article(path, title, introduction, body, doc)
-  log = path + ";" + URI.parse(published_path).path
+  # Remove inline css
+  introduction = introduction.gsub(/style=\"[^\"]*\"/,"")
+  body = body.gsub(/style=\"[^\"]*\"/,"")
 
-  File.open("scrape_holocaust.log", 'w') {|f| f.write(log) }
+  published_path = publish_article(path, title, introduction, body, doc)
+  # log = path + ";" + URI.parse(published_path).path
+  log = url + ";" + published_path + "\n"
+  File.open("scrape_holocaust.log", 'a') {|f| f.write(log) }
   puts title + " => " + published_path
 end
 
@@ -329,7 +332,7 @@ end
 #  @vortex.delete('/konv/kunnskapsbasen/aktor')
 # end
 @url = "http://www.hlsenteret.no/kunnskapsbasen/"
-
+File.open("scrape_holocaust.log", 'w') {|f| f.write("") }
 scrape_article_listing(@url)
 
 
