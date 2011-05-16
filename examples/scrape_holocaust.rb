@@ -173,9 +173,9 @@ def publish_article(path, title, introduction, body, doc)
   create_path(dest_path)
   @vortex.cd(dest_path)
 
-  images = []
+  # images = []
   # Comment out this line to prevent scraper from downloading images
-  # images = scrape_images(doc)
+  images = scrape_images(doc)
 
   images.each do |image|
     filenames = download_image(image[:url], dest_path)
