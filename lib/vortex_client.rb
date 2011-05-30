@@ -52,7 +52,7 @@ module Vortex
       @handler = NetHttpHandler.new(@uri)
       @handler.verify_server = false # This defaults to true in Net::DAV
       if(args != [])
-        if(args[0][:use_osx_keychain])then
+        if(args[0][:use_osx_keychain] or args[0][:osx_keychain])then
 
           # Retrieve password from OS X KeyChain.
           osx =  (RUBY_PLATFORM =~ /darwin/)
@@ -116,6 +116,7 @@ module Vortex
         uri = @uri.merge(object.url)
         # puts "DEBUG: uri = " + uri.to_s
         self.put_string(uri, object.content)
+        # puts "DEBUG: object.properties: #{uri}\n#{object.properties.gsub("><",">\n<")}\n-----\n"
         self.proppatch(uri, object.properties)
         return uri.to_s
       else

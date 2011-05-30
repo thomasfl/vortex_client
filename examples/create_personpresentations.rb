@@ -131,7 +131,7 @@ end
 
 # src_url = 'https://nyweb3-dav.uio.no/konv/ubo/'
 src_url = 'https://nyweb1-dav.uio.no/personer/genererte-presentasjoner/econ/'
-@vortex = Vortex::Connection.new(src_url, :use_osx_keychain => true)
+@vortex = Vortex::Connection.new(src_url, :osx_keychain => true)
 
 # puts "Restore from backup..."
 # delete(src_url)

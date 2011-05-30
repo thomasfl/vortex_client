@@ -52,9 +52,9 @@ On ubuntu openssl can be an issue http://blog.maxaller.name/2009/02/ruby-19-and-
 
 = Using KeyChain authentication on OS X
 
-To retrieve password from KeyChain on OS X, use the option :use_osx_keychain => true.
+To retrieve password from KeyChain on OS X, use the option :osx_keychain => true.
 
-   vortex = Vortex::Connection.new("https://www-dav.server.com", :use_osx_keychain => true)
+   vortex = Vortex::Connection.new("https://www-dav.server.com", :osx_keychain => true)
 
 When running for the first time, ruby prompts for the password. Username must be
 the same both locally and on the server.

@@ -12,7 +12,7 @@ class MigrateSuicidologi
   attr :vortex, :uri
 
   def initialize(url)
-    @vortex = Vortex::Connection.new(url,:use_osx_keychain => true)
+    @vortex = Vortex::Connection.new(url,:osx_keychain => true)
     @uri = URI.parse(url)
   end
 
