@@ -26,7 +26,7 @@ require 'pp'
 # - Hvorfor konverteres og publiseres /konv/kunnskapsbasen/-a-hrefhttp-.html
 # - Håndtere /konv/kunnskapsbasen/hl-senterets-kunnskapsbase.html spesielt?
 
-@vortex = Vortex::Connection.new("https://nyweb4-dav.uio.no", :use_osx_keychain => true)
+@vortex = Vortex::Connection.new("https://nyweb4-dav.uio.no", :osx_keychain => true)
 
 # Simple logger
 def log(str)
@@ -252,7 +252,6 @@ EOF
 end
 
 def scrape_article(url)
-  # puts "Scraping article: " + url
   doc = Nokogiri::HTML.parse(open(url))
   doc.encoding = 'utf-8'
   if(doc.css(".article .title").size() == 0)then
