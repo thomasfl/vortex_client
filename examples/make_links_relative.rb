@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 require 'rubygems'
-require 'find'
 require 'nokogiri'
 require 'vortex_client'
 require 'pathname'
-require 'pp'
 require 'json'
 
 def make_links_relative(dav_url)
@@ -40,4 +38,13 @@ def make_links_relative(dav_url)
 
 end
 
-make_links_relative('https://www-dav.vortex-demo.uio.no/tmp/relativiser/')
+url = ARGV[0]
+if(not(url))then
+  puts "Usage: make_links_relative URL"
+  puts
+  puts "Example: make_links_relative https://www-dav.vortex-demo.uio.no/tmp/relativiser/ "
+  puts "Looks for links in vortex documents stored as json. Takes a vortex webdav url as"
+  puts "parameter. Searches recursively through subfolders."
+else
+  make_links_relative(url)
+end
