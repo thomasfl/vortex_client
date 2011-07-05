@@ -2,6 +2,7 @@
 require 'net/dav'
 require 'vortex_client/string_utils'
 require 'vortex_client/person'
+require 'vortex_client/utilities'
 require 'highline/import'
 require 'time'
 
@@ -163,6 +164,41 @@ module Vortex
         self.proppatch(uri, object.properties)
         return uri.to_s
       end
+    end
+
+    # Create path - create all folders in the given path if they do not exist.
+    #
+    # Default is article-listing folder and the foldername used as title.
+    #
+    # Example:
+    #
+    #   create_path('/folders/to/be/created/')
+    #   create_path('/folders/to/be/created/', :type => "event-listing", :title => "Testing")
+    def create_path(dest_path, *args)
+      title = nil
+      if(args.size > 0)then
+        type = args[0][:type]
+        title = args[0][:title]
+      end
+      if(not(type))then
+        type = "article-listing"
+      end
+
+      destination_path = "/"
+      dest_path.split("/").each do |folder|
+        if(folder != "")then
+          folder = folder.downcase
+          destination_path = destination_path + folder + "/"
+          if( not(exists?(destination_path)) )then
+            mkdir(destination_path)
+            proppatch(destination_path,'<v:collection-type xmlns:v="vrtx">' + type + '</v:collection-type>')
+            if(title)then
+              proppatch(destination_path,'<v:userTitle xmlns:v="vrtx">' + title.to_s +  '</v:userTitle>')
+            end
+          end
+        end
+      end
+      return destination_path
     end
 
     private
