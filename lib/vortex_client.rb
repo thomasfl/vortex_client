@@ -201,6 +201,11 @@ module Vortex
       return destination_path
     end
 
+    # Returns current working directory on vortex/webdav server as string.
+    def cwd
+      return cd("").to_s
+    end
+
     private
 
     # Disable Net::DAV.credentials
