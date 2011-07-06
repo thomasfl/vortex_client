@@ -1,7 +1,8 @@
 = Vortex Client
 
-A set of utilities for managing content in the web content management system "Vortex":http://www.usit.uio.no/it/vortex/.
-All operations are done by using the webdav protocol.
+A Ruby API for the "Vortex":http://www.usit.uio.no/it/vortex/ Content Management System developed at the
+University of Oslo in Norway by IT Services department.
+The Ruby API uses the WebDAV protocol, supported by Vortex, to manage content.
 
 
 = Publishing content
@@ -50,7 +51,7 @@ If your'e having problems installing the xml parser nokogiri on is x:  http://wi
 Also how to compile ruby 1.9.1 on os x http://wonko.com/post/how-to-compile-ruby-191
 On ubuntu openssl can be an issue http://blog.maxaller.name/2009/02/ruby-19-and-openssl-on-ubuntu/
 
-= Using KeyChain authentication on OS X
+= Storing passwords in KeyChain on OS X
 
 To retrieve password from KeyChain on OS X, use the option :osx_keychain => true.
 
