@@ -14,7 +14,7 @@ begin
     gem.add_dependency "net_dav", ">= 0.5.0"
     gem.add_dependency "highline", ">= 1.5.1"
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
-    gem.files.include %w(lib/vortex_client.rb lib/vortex_client/string_utils.rb lib/vortex_client/item_extensions.rb lib/vortex_client/person.rb bin/vrtx-sync)
+    gem.files.include %w(lib/vortex_client.rb lib/vortex_client/string_utils.rb lib/vortex_client/item_extensions.rb lib/vortex_client/utilities.rb lib/vortex_client/person.rb bin/vrtx-sync)
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 rescue LoadError
