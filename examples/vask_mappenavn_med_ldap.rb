@@ -8,9 +8,9 @@ class MappeVasking
   def initialize
     @vortex = Vortex::Connection.new("https://www-dav.uio.no", :osx_keychain => true)
     @logfile = "renamed_person_folders_usit.log"
+    @dirty_logfile = false
   end
 
-  # Log uploads
   def log_renaming(path, org_title, new_title)
     # Empty logfile first:
     if(@dirty_logfile == false)then
