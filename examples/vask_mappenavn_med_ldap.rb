@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
 require 'rubygems'
 require 'vortex_client'
 require 'ldap_util'
 require 'nokogiri'
+
+# TODO
+# - Fjerne personmapper fra navigasjon i venstremarg. Bare undernammper skal vises.
+# - Endre navn på dette scriptet og refaktoriser litt
 
 class MappeVasking
 
