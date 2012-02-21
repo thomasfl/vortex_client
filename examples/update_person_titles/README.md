@@ -16,3 +16,15 @@ The generated ruby is a list of calls to the rename_folder() and the current fol
   rename_folder('https://www-dav.mn.uio.no/fysikk/personer/adm/mafdal/index.html','Marianne Afdal') #Afdal, Marianne
 ```
 
+# Running
+
+```
+  $ ruby fix_folder_titles.rb > my_generated_script.rb
+  $ ruby my_generated_script.rb
+```
+
+The generated scripts works as logs.
+
+# Author
+
+   Thomas Flemming
