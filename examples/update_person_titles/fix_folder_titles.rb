@@ -46,8 +46,6 @@ class FixFolderTitles
     path = path.sub(/[^\/]*$/,'')
     begin
       doc = @vortex.propfind( path )
-      # puts doc.to_s
-
       title = doc.xpath('//v:collectionTitle', "v" => "vrtx").last.children.first.inner_text
     rescue
       puts "Warning: Folder title not set: " + path
@@ -57,7 +55,6 @@ class FixFolderTitles
   end
 
   def scrape_page(url)
-    # puts "Scraping: " + url
     result = []
     doc = Nokogiri::HTML(open(url))
     doc.xpath('//td[@class="vrtx-person-listing-name"]/a[@class="vrtx-link-check"]').each do |link|
@@ -96,7 +93,7 @@ class FixFolderTitles
     end
 
     if(folder_title != realname and realname != "")then
-      puts "rename_folder('" + @url + path + "','" + realname + "') #" + folder_title
+      puts "rename_folder('" + @url + path.sub("index.html","") + "','" + realname + "') #" + folder_title
     end
 
   end
@@ -127,16 +124,17 @@ if __FILE__ == $0 then
            # 'http://www.uio.no/personer/adm/',
            # 'http://www.jus.uio.no/personer/',
            # 'http://www.tf.uio.no/personer/',
-           # 'http://www.ub.uio.no/personer/']
-
-           'http://www.mn.uio.no/personer/',
-           'http://www.mn.uio.no/english/people/',
-          # 'http://www.sv.uio.no/english/people/',
-          # 'http://www.hf.uio.no/english/people/',
-          # 'http://www.uio.no/english/people/adm/',
-          # 'http://www.jus.uio.no/english/people/',
-          # 'http://www.tf.uio.no/english/people/',
-          # 'http://www.ub.uio.no/english/people/'
+           # 'http://www.ub.uio.no/personer/',
+           # 'http://www.mn.uio.no/personer/',
+           # 'http://www.mn.uio.no/english/people/',
+           # 'http://www.sv.uio.no/english/people/',
+           # 'http://www.hf.uio.no/english/people/',
+           # 'http://www.uio.no/english/people/adm/',
+           # 'http://www.jus.uio.no/english/people/',
+           'http://www.tf.uio.no/english/people/',
+           'http://www.ub.uio.no/english/people/'
+           # 'http://www.usit.uio.no/english/people/',
+           # 'http://www.usit.uio.no/personer'
           ]
 
   hosts.each do |url|

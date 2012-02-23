@@ -2,6 +2,8 @@
 require 'rubygems'
 require 'vortex_client'
 require 'uri'
+require 'pry'
+require 'paint'
 
 def get_collection_title(url)
   title = nil
@@ -21,11 +23,22 @@ def set_collection_title(url,title)
   @vortex.proppatch(uri.path,'<v:userTitle xmlns:v="vrtx">' + title + '</v:userTitle>')
 end
 
+@dav_connections = { }
+
 def rename_folder(url, title)
-  if( @vortex == nil)then
-    puts "Connecting..."
+  host = URI.parse(url).host.to_s
+  if(not(@dav_connections[host]))
+    puts "Connecting to #{host}..."
     @vortex = Vortex::Connection.new(url, :use_osx_keychain => true)
+    @dav_connections[host] = @vortex
+  else
+    @vortex = @dav_connections[host]
   end
+
+  # if( @vortex == nil)
+  #   puts "Connecting..."
+  #   @vortex = Vortex::Connection.new(url, :use_osx_keychain => true)
+  # end
 
   old_title = get_collection_title(url)
   begin
